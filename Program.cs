@@ -112,9 +112,9 @@ app.MapPost("/newEmployee", async (CreateEmployeeDTO dto ,AppDbContext DbContext
 app.MapGet("/csvEmployee/{id}", async (int id, AppDbContext DbContext)=>
 {
     var employee = await DbContext.Employees.FindAsync(id);
-    if (employee == null)
+    if (employee == null && id < 0)
     {
-        return Results.NotFound("Id of the employee not found");
+        return Results.NotFound("Id of the employee not found, or not positive");
     }
     
     var shifts = await DbContext.Shifts

@@ -168,3 +168,4 @@
 /Users/defalt/Desktop/task2Int/ShiftPlanner.API/obj/Debug/net8.0/ShiftPlanner.API.genruntimeconfig.cache
 /Users/defalt/Desktop/task2Int/ShiftPlanner.API/obj/Debug/net8.0/ref/ShiftPlanner.API.dll
 /Users/defalt/Desktop/task2Int/ShiftPlanner.API/bin/Debug/net8.0/CsvHelper.dll
+/Users/defalt/Desktop/task2Int/ShiftPlanner.API/obj/Debug/net8.0/ShiftPlanner.API.sourcelink.json

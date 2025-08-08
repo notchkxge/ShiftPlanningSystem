@@ -5,7 +5,8 @@ using System.IO;
 using CsvHelper;
 using System.Globalization;
 using System.Text;
-//just add the csv file
+//just add the csv file - done
+//restfulAPI - done
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -112,9 +113,14 @@ app.MapPost("/newEmployee", async (CreateEmployeeDTO dto ,AppDbContext DbContext
 app.MapGet("/csvEmployee/{id}", async (int id, AppDbContext DbContext)=>
 {
     var employee = await DbContext.Employees.FindAsync(id);
-    if (employee == null && id < 0)
+    if (id < 0)
     {
-        return Results.NotFound("Id of the employee not found, or not positive");
+        return Results.BadRequest($"Employee's ID {id} must be positive");
+    }
+
+    if (employee == null)
+    {
+        return Results.NotFound($"Employee with ID {id} is not found");
     }
     
     var shifts = await DbContext.Shifts
@@ -131,15 +137,27 @@ app.MapGet("/csvEmployee/{id}", async (int id, AppDbContext DbContext)=>
         ))
         .ToListAsync();
 
-    var memoryStream = new MemoryStream();
+    var dir = Path.Combine(Directory.GetCurrentDirectory(), "CsvReports");
+    Directory.CreateDirectory(dir);
 
-    using (var streamWriter = new StreamWriter(memoryStream, Encoding.UTF8, leaveOpen: true))
-    using (var csvWriter = new CsvWriter(streamWriter, CultureInfo.InvariantCulture)){
-        csvWriter.WriteRecords(shifts);
+    var fileName = $"shifts_{id}_{DateTime.Now:yyyy MMMM dd}.csv";
+    var filePath = Path.Combine(dir, fileName);
+
+    using (var writer = new StreamWriter(filePath))
+    using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+    {
+        csv.Context.TypeConverterOptionsCache
+            .GetOptions<DateTime>()
+            .Formats = ["yyyy-MM-dd HH:mm"];
+
+        csv.Context.TypeConverterOptionsCache
+            .GetOptions<DateTime?>()
+            .Formats = ["yyyy-MM-dd HH:mm"];
+        //date not working in my excel
+        
+        csv.WriteRecords(shifts);
     }
-    memoryStream.Position = 0;
-
-    return Results.File(memoryStream, "text/csv", $"shifts_export_{id}.csv");
+    return Results.Ok($"CSV saved to: {filePath}");
 });
 
 app.Run();
